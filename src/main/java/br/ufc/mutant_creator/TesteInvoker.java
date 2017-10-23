@@ -15,15 +15,16 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 public class TesteInvoker {
 	
 	public static List<String> GOALS_PROJECT = Arrays.asList( "test" );
+	private static String HOME_MAVEN =  "/usr";
 	
 	//MÉTODO UTILIZADO PARA REALIZAR O TESTE NO MUTANTE CRIADO
-    public static int testInvoker(Path path) {
+    public static int testInvoker(Path path, String copyProjectPath) {
     	try {
 			Invoker invoker = new DefaultInvoker();
-			invoker.setMavenHome( new File( CreateMutants.HOME_MAVEN ) );
+			invoker.setMavenHome( new File( HOME_MAVEN ) );
 			
 			InvocationRequest request = new DefaultInvocationRequest();
-			request.setPomFile( new File( CreateMutants.COPY_PROJECT_PATH ) );
+			request.setPomFile( new File( copyProjectPath ) );
 			request.setGoals( GOALS_PROJECT );
 			
 			InvocationResult result = invoker.execute( request );

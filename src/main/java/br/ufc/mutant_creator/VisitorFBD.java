@@ -11,9 +11,7 @@ public class VisitorFBD extends MyModifierVisitor {
 	@Override
     public Node visit(TryStmt n, ParameterVisitor parameter) {
 		
-		if(parameter.getPosition() == actualPosition) {
-			
-			System.out.println("TESTANDO ESSE: "+ n);
+		if(parameter.getPosition() == actualPosition && n.getFinallyBlock().isPresent()) {
 			
 			parameter.setBefore(n.toString());
 			parameter.setBeginLine(n.getRange().get().begin.line);
@@ -27,18 +25,26 @@ public class VisitorFBD extends MyModifierVisitor {
 			
 			parameter.setAfter(n.toString());
 		}
-
+		
 		if(n.getFinallyBlock().isPresent())
-			actualPosition++;
+		actualPosition++;
 		
     	return n;
-    }
+    }	
 
 	@Override
 	public int countTimes(CompilationUnit cu) {
 		return new VisitorCount().countTryBlockWithFinally(cu);
 	}
 	
+	@Override
+	public String toString() {
+		return "Remove Finally Block";
+	}
 	
+	@Override
+	public String pathIdentification() {
+		return "FBD";
+	}
 }
 		

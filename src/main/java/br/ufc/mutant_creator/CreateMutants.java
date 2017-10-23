@@ -16,26 +16,24 @@ import com.github.javaparser.ast.CompilationUnit;
 public class CreateMutants {
 	
 	public static String USER_REFERENCE_TO_PROJECT = "/home/luan/mutacoes/";
-	public static String HOME_MAVEN =  "/usr";
 	public static String PROJECT_NAME = "forMutant";
 	public static String PROJECT_PATH = USER_REFERENCE_TO_PROJECT+PROJECT_NAME;
-	
-	public static Integer changeNumber = 1;
-	
-	private static float qtdMutant = 0;
-	private static float qtdMutantDead = 0;
-	
-	public static String COPY_PROJECT_PATH;
 	public static String PROJECT_PATH_JAVA = PROJECT_PATH+"/src/main/java";
 	
-	public static boolean changeClass = false;
+	public static Integer changeNumber = 1;
+	private static float qtdMutant = 0;
+	private static float qtdMutantDead = 0;
 
     public static void main(String[] args) {
-    	VisitorFBD cm = new VisitorFBD();
-    	listAndModifierFilesJava(cm);
+      	VisitorCBD cbd = new VisitorCBD();
+    	listAndModifierFilesJava(cbd);
+    	VisitorFBD fbd = new VisitorFBD();
+    	listAndModifierFilesJava(fbd);
     }
     
     public static void listAndModifierFilesJava(MyModifierVisitor cm) {
+    	
+    	resetResults();
     	
     	File source = new File(PROJECT_PATH_JAVA);
     	System.out.println("Gerando mutantes nas classes...");
@@ -51,7 +49,10 @@ public class CreateMutants {
 				
 		        Random ram = new Random();
 		        
+		        cm.resetPosition();
 		        int qtd = cm.countTimes(cu);
+		        
+		        System.out.println("QUANTIDADDE: "+qtd);
 		        		
 		        if(qtd == 0) {
 		        	System.out.println("Jump, no ocurrences");
@@ -67,11 +68,14 @@ public class CreateMutants {
 		        parameterVisitor.setPosition(position);
 		        
 		        cm.visit(cu, parameterVisitor);
+		        
+		    	String copyProjectPath = USER_REFERENCE_TO_PROJECT+cm.pathIdentification()+"/"+PROJECT_NAME+"-"+(CreateMutants.changeNumber++);
 		        		
-	        	Util.createACopyMutantTest();
+	        	Util.createACopyMutantTest(copyProjectPath);
 	        	qtdMutant++;
 	        	
-	        	String novoCaminho = f.toString().replace(PROJECT_NAME, PROJECT_NAME+"-"+(changeNumber-1));
+	        	String novoCaminho = f.toString().
+	        	replace(PROJECT_NAME, cm.pathIdentification()+"/"+PROJECT_NAME+"-"+(changeNumber-1));
 	        	
 	        	System.out.println("Caminho antigo: "+f.toString());
 	        	System.out.println("Novo caminho: "+novoCaminho);
@@ -79,9 +83,9 @@ public class CreateMutants {
 		        Path fw = Paths.get(novoCaminho);
 		        
 		        Files.write(fw, cu.toString().getBytes());
-		    	int result = TesteInvoker.testInvoker(fw);
+		    	int result = TesteInvoker.testInvoker(fw, copyProjectPath);
 		    	
-		    	createResult(fw, result, parameterVisitor);
+		    	createResult(fw, result, parameterVisitor, cm.pathIdentification());
 		        
 			    //break;
 			} catch (FileNotFoundException e) {
@@ -90,11 +94,11 @@ public class CreateMutants {
 				e.printStackTrace();
 			}
     	}
-    	finalResult();
+    	finalResult(cm);
     }
     
     //PRINTANDO O RESULTADO NO ARQUIVO
-    public static void finalResult(){
+    public static void finalResult(MyModifierVisitor modifierVisitor){
     	System.out.println("----------------");
     	float resultFrac = qtdMutantDead/qtdMutant;
     	System.out.println("Quantidade de Mutants: "+qtdMutant);
@@ -103,11 +107,11 @@ public class CreateMutants {
     	System.out.println("Fração de Mutants / Mutants Mortos: "+ resultFrac);
     	System.out.println("----------------");
     	
-    	String pathResultFile = USER_REFERENCE_TO_PROJECT+"resultAll.txt";
+    	String pathResultFile = USER_REFERENCE_TO_PROJECT+modifierVisitor.pathIdentification()+"/"+"resultAll.txt";
     	
     	Path fw = Paths.get(pathResultFile);
         
-    	String escritaArquivo = "Mutações realizadas: Deixando todos os blocos catch vazios, para cada classe.";
+    	String escritaArquivo = "Mutação realizada: "+modifierVisitor;
     	escritaArquivo+= "\n Quantidade de Mutantes: "+qtdMutant;
     	escritaArquivo+= "\n Quantidade de Mutants Mortos: "+qtdMutantDead;
     	escritaArquivo+= "\n Quantidade de Mutants Vivos: "+(qtdMutant-qtdMutantDead);
@@ -120,25 +124,32 @@ public class CreateMutants {
 		}
     }
     
-    public static void createResult(Path path, int result, ParameterVisitor parameter) {
-    	String pathResultFile = PROJECT_PATH+"-"+(changeNumber-1)+"/result.txt";
+  //PRINTANDO O RESULTADO INDIVIDUAL PARA CADA MUTANTE ARQUIVO
+    public static void createResult(Path pathFile, int result, ParameterVisitor parameter, String namePath) {
+    	String pathResultFile = USER_REFERENCE_TO_PROJECT+namePath+"/"+PROJECT_NAME+"-"+(changeNumber-1)+"/result.txt";
     	
     	Path fw = Paths.get(pathResultFile);
         
-    	String writeFile = "true";
+    	String writeFile = "mutantDead=false,";
     	if(result!=0) {
-    		writeFile = "false"; 
+    		writeFile = "mutantDead=true,"; 
      		qtdMutantDead++;
     	}
     	
-    	writeFile+="\n"+path;
+    	writeFile+="\n\npathFile="+pathFile+",";
     	
-    	writeFile+="\n\n"+parameter;
+    	writeFile+="\n"+parameter;
     	
         try {
 			Files.write(fw, writeFile.getBytes());
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+    }
+    
+    private static void resetResults() {
+    	changeNumber = 1;
+    	qtdMutant = 0;
+    	qtdMutantDead = 0;
     }
 }

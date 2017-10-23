@@ -53,13 +53,13 @@ public class ParameterVisitor {
 	}
 	@Override
 	public String toString() {
-		return  "  \nbeginLine=" + beginLine + 
+		return  "\nbeginLine=" + beginLine + 
 				", \n\nendLine=" + endLine + 
 				//", \n\nbeginLineModifier=" + beginLineModifier + 
 				//", \n\nendLineModifier=" + endLineModifier + 
 				", \n\nposition=" + position + 
-				", \n\nCode before=\n" + before + 
-				", \n\nCode after=\n" + after + 
+				", \n\nCodeBefore=\n" + before + 
+				", \n\nCodeAfter=\n" + after + 
 				"\n";
 	}
 }

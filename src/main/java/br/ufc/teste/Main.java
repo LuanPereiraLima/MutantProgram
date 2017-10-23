@@ -6,19 +6,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Random;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 
 import br.ufc.mutant_creator.ParameterVisitor;
 import br.ufc.mutant_creator.VisitorCBD;
-import br.ufc.mutant_creator.VisitorCount;
+import br.ufc.mutant_creator.VisitorCBI;
 
 public class Main {
 	public static void main(String[] args) {
-		TestVisitorCatch cm = new TestVisitorCatch();
-		VisitorCBD visitorCBD = new VisitorCBD();
+		VisitorCBI cm = new VisitorCBI();
 		
 		File f = new File("src/main/java/br/ufc/teste/Test.java");
 		
@@ -26,10 +24,10 @@ public class Main {
 		try {
 			
 			ParameterVisitor p = new ParameterVisitor();
-			p.setPosition(2);
+			p.setPosition(1);
 			
 			cu = JavaParser.parse(f);
-			visitorCBD.visit(cu, p);
+			cm.visit(cu, p);
 			
 			System.out.println(p.toString());
 			

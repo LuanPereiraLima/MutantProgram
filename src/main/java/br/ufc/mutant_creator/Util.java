@@ -8,12 +8,9 @@ import org.apache.commons.io.FileUtils;
 public class Util {
 	
     //MÉTODO UTILIZADO PARA CRIAR A CÓPIA DO PROJETO NA QUAL SERÁ O MUTANTE
-    public static void createACopyMutantTest(){
+    public static void createACopyMutantTest(String copyProjectPath){
     	File source = new File(CreateMutants.PROJECT_PATH);
-    	
-    	CreateMutants.COPY_PROJECT_PATH = CreateMutants.PROJECT_PATH+"-"+(CreateMutants.changeNumber++);
-    	
-    	File dest = new File(CreateMutants.COPY_PROJECT_PATH);
+    	File dest = new File(copyProjectPath);
     	try {
     		System.out.println("Gerando copia do arquivo...");
     	    FileUtils.copyDirectory(source, dest);
