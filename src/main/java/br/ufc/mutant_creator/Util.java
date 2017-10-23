@@ -9,11 +9,11 @@ public class Util {
 	
     //MÉTODO UTILIZADO PARA CRIAR A CÓPIA DO PROJETO NA QUAL SERÁ O MUTANTE
     public static void createACopyMutantTest(){
-    	File source = new File(MethodChanger.PROJECT_PATH);
+    	File source = new File(CreateMutants.PROJECT_PATH);
     	
-    	MethodChanger.COPY_PROJECT_PATH = MethodChanger.PROJECT_PATH+"-"+(MethodChanger.changeNumber++);
+    	CreateMutants.COPY_PROJECT_PATH = CreateMutants.PROJECT_PATH+"-"+(CreateMutants.changeNumber++);
     	
-    	File dest = new File(MethodChanger.COPY_PROJECT_PATH);
+    	File dest = new File(CreateMutants.COPY_PROJECT_PATH);
     	try {
     		System.out.println("Gerando copia do arquivo...");
     	    FileUtils.copyDirectory(source, dest);

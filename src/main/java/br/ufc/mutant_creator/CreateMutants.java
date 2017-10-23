@@ -6,16 +6,14 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
-import com.github.javaparser.ast.stmt.BlockStmt;
-import com.github.javaparser.ast.stmt.CatchClause;
-import com.github.javaparser.ast.visitor.VoidVisitorAdapter;
 
-public class MethodChanger {
+public class CreateMutants {
 	
 	public static String USER_REFERENCE_TO_PROJECT = "/home/luan/mutacoes/";
 	public static String HOME_MAVEN =  "/usr";
@@ -33,10 +31,11 @@ public class MethodChanger {
 	public static boolean changeClass = false;
 
     public static void main(String[] args) {
-    	listFilesJava();
+    	VisitorFBD cm = new VisitorFBD();
+    	listAndModifierFilesJava(cm);
     }
     
-    public static void listFilesJava() {
+    public static void listAndModifierFilesJava(MyModifierVisitor cm) {
     	
     	File source = new File(PROJECT_PATH_JAVA);
     	System.out.println("Gerando mutantes nas classes...");
@@ -49,30 +48,42 @@ public class MethodChanger {
 		 	CompilationUnit cu;
 			try {
 				cu = JavaParser.parse(f);
-	
-		        VisitorCatch cm = new VisitorCatch();
-		        cm.visit(cu, null);
-	
-		        if(changeClass) {
+				
+		        Random ram = new Random();
+		        
+		        int qtd = cm.countTimes(cu);
 		        		
-		        	Util.createACopyMutantTest();
-		        	qtdMutant++;
-		        	
-		        	String novoCaminho = f.toString().replace(PROJECT_NAME, PROJECT_NAME+"-"+(changeNumber-1));
-		        	
-		        	System.out.println("Caminho antigo: "+f.toString());
-		        	System.out.println("Novo caminho: "+novoCaminho);
-		        	
-			        Path fw = Paths.get(novoCaminho);
-			        
-			        Files.write(fw, cu.toString().getBytes());
-			    	int result = TesteInvoker.testInvoker(fw);
-			    	
-			    	createResult(fw, result);
-			        
-			    	changeClass = false;
+		        if(qtd == 0) {
+		        	System.out.println("Jump, no ocurrences");
+		        	continue;
 		        }
-		        //break;
+		        
+		        int position = 1;
+		        if(qtd > 1)
+		        	position = ram.nextInt(qtd-1)+1;
+		        
+		        ParameterVisitor parameterVisitor = new ParameterVisitor();
+		        
+		        parameterVisitor.setPosition(position);
+		        
+		        cm.visit(cu, parameterVisitor);
+		        		
+	        	Util.createACopyMutantTest();
+	        	qtdMutant++;
+	        	
+	        	String novoCaminho = f.toString().replace(PROJECT_NAME, PROJECT_NAME+"-"+(changeNumber-1));
+	        	
+	        	System.out.println("Caminho antigo: "+f.toString());
+	        	System.out.println("Novo caminho: "+novoCaminho);
+	        	
+		        Path fw = Paths.get(novoCaminho);
+		        
+		        Files.write(fw, cu.toString().getBytes());
+		    	int result = TesteInvoker.testInvoker(fw);
+		    	
+		    	createResult(fw, result, parameterVisitor);
+		        
+			    //break;
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {
@@ -109,7 +120,7 @@ public class MethodChanger {
 		}
     }
     
-    public static void createResult(Path path, int result) {
+    public static void createResult(Path path, int result, ParameterVisitor parameter) {
     	String pathResultFile = PROJECT_PATH+"-"+(changeNumber-1)+"/result.txt";
     	
     	Path fw = Paths.get(pathResultFile);
@@ -120,7 +131,9 @@ public class MethodChanger {
      		qtdMutantDead++;
     	}
     	
-    	writeFile+="\n"+path.getFileName();
+    	writeFile+="\n"+path;
+    	
+    	writeFile+="\n\n"+parameter;
     	
         try {
 			Files.write(fw, writeFile.getBytes());

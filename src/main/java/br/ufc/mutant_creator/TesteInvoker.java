@@ -14,21 +14,19 @@ import org.apache.maven.shared.invoker.MavenInvocationException;
 
 public class TesteInvoker {
 	
-	public static List<String> GOALS_PROJECT = Arrays.asList( "install" );
+	public static List<String> GOALS_PROJECT = Arrays.asList( "test" );
 	
 	//MÉTODO UTILIZADO PARA REALIZAR O TESTE NO MUTANTE CRIADO
     public static int testInvoker(Path path) {
     	try {
 			Invoker invoker = new DefaultInvoker();
-			invoker.setMavenHome( new File( MethodChanger.HOME_MAVEN ) );
+			invoker.setMavenHome( new File( CreateMutants.HOME_MAVEN ) );
 			
 			InvocationRequest request = new DefaultInvocationRequest();
-			request.setPomFile( new File( MethodChanger.COPY_PROJECT_PATH ) );
+			request.setPomFile( new File( CreateMutants.COPY_PROJECT_PATH ) );
 			request.setGoals( GOALS_PROJECT );
 			
 			InvocationResult result = invoker.execute( request );
-			
-			//System.out.println("Resultado: "+resultado.getExitCode());
 			
 			return result.getExitCode();
 			
