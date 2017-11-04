@@ -13,13 +13,8 @@ public class VisitorCBD extends MyModifierVisitor {
 	@Override
     public Node visit(TryStmt n, ParameterVisitor parameter) {
 		
-//		System.out.println("posição atual: "+actualPosition+
-//				" posição do parametro: "+parameter.getPosition()+" n: "+n);
-		
 		if(parameter.getPosition() == actualPosition) {
-			
-//			System.out.println("antes: "+ n);
-			
+
 			parameter.setBefore(n.toString());
 			parameter.setBeginLine(n.getRange().get().begin.line);
 			parameter.setEndLine(n.getRange().get().end.line);
@@ -34,9 +29,7 @@ public class VisitorCBD extends MyModifierVisitor {
 			parameter.setEndLineModifier(n.getRange().get().end.line);
 			
 			parameter.setAfter(n.toString());
-			
-//			System.out.println("depois: "+ n);
-
+		
 		}
 
 		actualPosition++;

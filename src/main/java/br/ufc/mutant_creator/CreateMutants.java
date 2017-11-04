@@ -6,12 +6,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import org.apache.commons.io.FileUtils;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
+
+import br.ufc.teste.ClassParameter;
+import br.ufc.teste.ClassUtil;
 
 public class CreateMutants {
 	
@@ -25,12 +30,14 @@ public class CreateMutants {
 	private static float qtdMutantDead = 0;
 
     public static void main(String[] args) {
-      	VisitorCBD cbd = new VisitorCBD();
-    	listAndModifierFilesJava(cbd);
-    	VisitorFBD fbd = new VisitorFBD();
-    	listAndModifierFilesJava(fbd);
+   //   	VisitorCBD cbd = new VisitorCBD();
+    //	listAndModifierFilesJava(cbd);
+    	//VisitorFBD fbd = new VisitorFBD();
+  //  	listAndModifierFilesJava(fbd);
+    	
+    	System.out.println(ClassUtil.getSubTypes("Assert", PROJECT_PATH_JAVA));
     }
-    
+
     public static void listAndModifierFilesJava(MyModifierVisitor cm) {
     	
     	resetResults();
@@ -86,8 +93,6 @@ public class CreateMutants {
 		    	int result = TesteInvoker.testInvoker(fw, copyProjectPath);
 		    	
 		    	createResult(fw, result, parameterVisitor, cm.pathIdentification());
-		        
-			    //break;
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (IOException e) {

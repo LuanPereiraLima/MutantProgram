@@ -1,16 +1,11 @@
 package br.ufc.mutant_creator;
 
-import org.reflections.Reflections;
-
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
 import com.github.javaparser.ast.stmt.CatchClause;
 import com.github.javaparser.ast.stmt.TryStmt;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
-import com.github.javaparser.symbolsolver.javaparsermodel.JavaParserFacade;
-import com.github.javaparser.symbolsolver.model.typesystem.Type;
-import com.github.javaparser.symbolsolver.resolution.typesolvers.ReflectionTypeSolver;
 
 public class VisitorCBI extends MyModifierVisitor {
 	
@@ -48,24 +43,7 @@ public class VisitorCBI extends MyModifierVisitor {
 	private class VisitorCatch extends ModifierVisitor<Void>{
 		@Override
 		public Visitable visit(CatchClause n, Void arg) {
-			System.out.println(n.getParameter());
-			n.getParameter().getType();
-			
-			Reflections reflections = new Reflections(CreateMutants.PROJECT_PATH_JAVA);
-			Type typeOfTheNode = JavaParserFacade.get(new ReflectionTypeSolver()).getType(n.getParameter());
-			
-			System.out.println(n.getParameter().getType());
-					try {
-						Class sub = Class.forName(typeOfTheNode.describe());
-						java.util.Set<Class<? extends Exception>> subTypes = reflections.getSubTypesOf((sub));
-					} catch (ClassNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-			
-			//java.util.Set<Class<? extends Exception>> subTypes = reflections.getSubTypesOf((typeOfTheNode.describe()));
-		//	System.out.println(subTypes);
-			//n.getParameter().getClass();
+			System.out.println(n.getParameter().getName());
 			return n;
 		}
 	}
@@ -77,12 +55,12 @@ public class VisitorCBI extends MyModifierVisitor {
 	
 	@Override
 	public String pathIdentification() {
-		return "CBD";
+		return "CBI";
 	}
 	
 	@Override
 	public String toString() {
-		return "Remove Catch Block";
+		return "Catch Block Insertion";
 	}
 }
 		
