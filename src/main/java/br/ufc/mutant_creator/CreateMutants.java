@@ -20,7 +20,7 @@ import br.ufc.teste.ClassUtil;
 
 public class CreateMutants {
 	
-	public static String USER_REFERENCE_TO_PROJECT = "/home/luan/mutacoes/";
+	public static String USER_REFERENCE_TO_PROJECT = "/home/loopback/mutacoes/";
 	public static String PROJECT_NAME = "forMutant";
 	public static String PROJECT_PATH = USER_REFERENCE_TO_PROJECT+PROJECT_NAME;
 	public static String PROJECT_PATH_JAVA = PROJECT_PATH+"/src/main/java";
@@ -35,7 +35,7 @@ public class CreateMutants {
     	//VisitorFBD fbd = new VisitorFBD();
   //  	listAndModifierFilesJava(fbd);
     	
-    	System.out.println(ClassUtil.getSubTypes("Assert", PROJECT_PATH_JAVA));
+    	System.out.println(ClassUtil.getSubTypes("org.junit.experimental.ParallelComputer", PROJECT_PATH_JAVA));
     }
 
     public static void listAndModifierFilesJava(MyModifierVisitor cm) {
