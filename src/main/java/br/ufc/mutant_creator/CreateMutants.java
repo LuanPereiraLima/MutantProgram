@@ -29,7 +29,7 @@ public class CreateMutants {
 		// listAndModifierFilesJava(cbd);
 		// VisitorFBD fbd = new VisitorFBD();
 		// listAndModifierFilesJava(fbd);
-		VisitorCBI vdbi = new VisitorCBI();
+		VisitorCRE vdbi = new VisitorCRE();
 		listAndModifierFilesJava(vdbi);
 		 //System.out.println(ClassUtil.getSubTypes("Throwable",
 		 //ConstantsPath.PROJECT_PATH_JAVA));

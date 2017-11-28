@@ -5,32 +5,26 @@ import java.util.List;
 
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.Node;
-import com.github.javaparser.ast.body.Parameter;
+import com.github.javaparser.ast.NodeList;
 import com.github.javaparser.ast.expr.SimpleName;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.CatchClause;
+import com.github.javaparser.ast.stmt.ReturnStmt;
+import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.ThrowStmt;
 import com.github.javaparser.ast.stmt.TryStmt;
-import com.github.javaparser.ast.type.ClassOrInterfaceType;
 import com.github.javaparser.ast.visitor.ModifierVisitor;
 import com.github.javaparser.ast.visitor.Visitable;
 
 import br.ufc.teste.ClassUtil;
 
-public class VisitorCBI extends MyModifierVisitor {
+public class VisitorCRE extends MyModifierVisitor {
 	
-	List<AuxItem> listaDeItens;
-	
-	public VisitorCBI() {
-		listaDeItens = new ArrayList<AuxItem>();
-	}
-	
-	private void resetListaItens() {
-		listaDeItens.clear();
+	public VisitorCRE() {
 	}
 	
 	@Override
     public Node visit(TryStmt n, ParameterVisitor parameter) {
-		
 		//System.out.println(n);
 		
 		
@@ -38,7 +32,6 @@ public class VisitorCBI extends MyModifierVisitor {
 //				" posição do parametro: "+parameter.getPosition()+" n: "+n);
 		
 		if(parameter.getPosition() == actualPosition) {
-			resetListaItens();
 			parameter.setNeedModification(false);
 //			System.out.println("antes: "+ n);
 			
@@ -49,7 +42,7 @@ public class VisitorCBI extends MyModifierVisitor {
 			VisitorCatch vc = new VisitorCatch();
 			n.accept(vc, parameter);
 	    	
-	    	for(AuxItem item : listaDeItens) {
+	    	/*for(AuxItem item : listaDeItens) {
 	    		System.out.println("ADICIONEI UM NOVO");
 		    	for(String subtypes: item.getSubtypes()) {
 			    	Parameter p = new Parameter(new ClassOrInterfaceType(subtypes), subtypes);
@@ -57,7 +50,7 @@ public class VisitorCBI extends MyModifierVisitor {
 			    	n.getCatchClauses().add(new CatchClause(p, item.getBlock()));
 			    	parameter.setNeedModification(true);
 	    		}
-	    	}
+	    	}*/
 	    	parameter.setBeginLineModifier(n.getRange().get().begin.line);
 			parameter.setEndLineModifier(n.getRange().get().end.line);
 			
@@ -77,22 +70,38 @@ public class VisitorCBI extends MyModifierVisitor {
 	private class VisitorCatch extends ModifierVisitor<ParameterVisitor>{
 		@Override
 		public Visitable visit(CatchClause n, ParameterVisitor parameter) {
-			//System.out.println("-----------------!-----------------");
-			//System.out.println("Name CLass: "+n.getParameter().getType().asString());
+			parameter.setNeedModification(true);
+			NodeList<Statement> listaStatements = new NodeList<Statement>();
+			Statement positionReturn = null;
+			for(int i=0; i < n.getBody().getStatements().size(); i++) {
+				if(n.getBody().getStatements().get(i) instanceof ReturnStmt) {
+					positionReturn = n.getBody().getStatements().get(i);
+				}else {
+					listaStatements.add(n.getBody().getStatements().get(i));
+				}
+			}
+			
 			String name = ClassUtil.returnNamedWithPackageIfNecessary(n.getParameter().getType().asString(), parameter.getClassParameter());
-		//	System.out.println("Name after CLass returnNamedWithPackageIfNecessary: "+name);
-			//List<String> lista = ClassUtil.getSubTypes(name, ConstantsPath.PROJECT_PATH_JAVA);
 			final List<String> lista = new ArrayList();
 			ClassUtil.getTreeAllSubTypes(lista, name);
-		//	System.out.println("lista: "+lista);
+			
+			n.getBody().setStatements(listaStatements);
+
+			ThrowStmt ts = new ThrowStmt();
+			ts.setExpression(name);
+			n.getBody().getStatements().add(ts);
+			parameter.setNeedModification(true);
+			
 			if(lista.size() > 0) {
-				AuxItem aux = new AuxItem();
-				aux.setSubtypes(lista);
-				aux.setBlock(n.getBody());
-				aux.setNamePameter(n.getParameter().getName());
-				listaDeItens.add(aux);
+				for(String s: lista) {
+					ts = new ThrowStmt();
+					ts.setExpression(s);
+					
+					n.getBody().getStatements().add(ts);
+				}
 			}
-		//	System.out.println("-----------------!-----------------");
+			if(positionReturn!=null)
+				n.getBody().getStatements().add(positionReturn);
 			return n;
 		}
 	}
@@ -104,36 +113,12 @@ public class VisitorCBI extends MyModifierVisitor {
 	
 	@Override
 	public String pathIdentification() {
-		return "CBI";
+		return "CRE";
 	}
 	
 	@Override
 	public String toString() {
-		return "Catch Block Insertion";
-	}
-	
-	private class AuxItem{
-		private BlockStmt block;
-		private SimpleName namePameter;
-		private List<String> subtypes;
-		public BlockStmt getBlock() {
-			return block;
-		}
-		public void setBlock(BlockStmt block) {
-			this.block = block;
-		}
-		public SimpleName getNamePameter() {
-			return namePameter;
-		}
-		public void setNamePameter(SimpleName namePameter) {
-			this.namePameter = namePameter;
-		}
-		public List<String> getSubtypes() {
-			return subtypes;
-		}
-		public void setSubtypes(List<String> subtypes) {
-			this.subtypes = subtypes;
-		}
+		return "Catch and rethrow exception";
 	}
 }
 		
