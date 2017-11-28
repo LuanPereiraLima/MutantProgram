@@ -1,6 +1,9 @@
 package br.ufc.mutant_creator;
 
+import br.ufc.teste.ClassParameter;
+
 public class ParameterVisitor {
+	private ClassParameter classParameter;
 	private Integer beginLine;
 	private Integer beginLineModifier;
 	private Integer endLine;
@@ -8,6 +11,7 @@ public class ParameterVisitor {
 	private Integer position;
 	private String before;
 	private String after;
+	private boolean needModification = true;
 	
 	public Integer getBeginLine() {
 		return beginLine;
@@ -51,6 +55,23 @@ public class ParameterVisitor {
 	public void setAfter(String after) {
 		this.after = after;
 	}
+	
+	public ClassParameter getClassParameter() {
+		return classParameter;
+	}
+	
+	public void setClassParameter(ClassParameter classParameter) {
+		this.classParameter = classParameter;
+	}
+	
+	public boolean isNeedModification() {
+		return needModification;
+	}
+	
+	public void setNeedModification(boolean needModification) {
+		this.needModification = needModification;
+	}
+	
 	@Override
 	public String toString() {
 		return  "\nbeginLine=" + beginLine + 
@@ -60,6 +81,7 @@ public class ParameterVisitor {
 				", \n\nposition=" + position + 
 				", \n\nCodeBefore=\n" + before + 
 				", \n\nCodeAfter=\n" + after + 
+				", \n\nNeed modification=\n" + needModification + 
 				"\n";
 	}
 }

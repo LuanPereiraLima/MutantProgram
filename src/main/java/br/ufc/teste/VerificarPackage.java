@@ -23,16 +23,16 @@ public class VerificarPackage {
             if (files != null) {
                     Iterator it = files.keySet().iterator();
                     while (it.hasNext()) {
-                            String folderName = (String) it.next();
-                            System.out.println("Listing directory [" + folderName + "]");
-                            System.out.println("======================================");
-                            Iterator fileNamesIt = ((FileList)
-files.get(folderName)).getFilesNames().iterator();
-                            while (fileNamesIt.hasNext()) {
-                                    String fileName = (String) fileNamesIt.next();
-                                    System.out.println("--> " + fileName);
-                            }
-                            System.out.println("");
+	                    String folderName = (String) it.next();
+	                    System.out.println("Listing directory [" + folderName + "]");
+	                    System.out.println("======================================");
+	                    Iterator fileNamesIt = ((FileList)
+	                    files.get(folderName)).getFilesNames().iterator();
+	                    while (fileNamesIt.hasNext()) {
+	                            String fileName = (String) fileNamesIt.next();
+	                            System.out.println("--> " + fileName);
+	                    }
+	                    System.out.println("");
                     }
             }
     }
@@ -40,6 +40,9 @@ files.get(folderName)).getFilesNames().iterator();
     public static Map generatePathFileList(String currentFolder, File file) {
     		
     		//if(currentFolder==null) currentFolder = CreateMutants.PROJECT_PATH_JAVA;
+    	
+    		if(files!=null)
+    			return files;
     		
             String[] f = file.list();
             for (int x = 0; x < f.length; x++) {

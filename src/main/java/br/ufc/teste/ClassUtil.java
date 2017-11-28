@@ -6,36 +6,41 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.io.FileUtils;
+
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ast.CompilationUnit;
 import com.github.javaparser.ast.ImportDeclaration;
 import com.github.javaparser.ast.type.ClassOrInterfaceType;
-import br.ufc.mutant_creator.CreateMutants;
+
+import br.ufc.mutant_creator.ConstantsPath;
 import br.ufc.mutant_creator.VisitorClasses;
 
 public class ClassUtil {
 	
 	private static List<String> getSubTypesAux(String name, List<ClassParameter> classes) {
-		System.out.println("-----------\n"+name);
+	    //name = returnNamedWithPackageIfNecessary(name, c);
+//		System.out.println("-----------\n"+name);
 		List<String> listaClasses = new ArrayList<String>();
 		for(ClassParameter c : classes) {
 			for(ClassOrInterfaceType ci : c.getListExtends()) {
 				
 				//System.out.println("Name Bafore: " + ci.getName().asString());
 				String nameClass = returnNamedWithPackageIfNecessary(ci.getName().asString(), c);
-				//System.out.println("Name After: " + nameClass);
+//				System.out.println("Name After: " + nameClass);
 				
-				System.out.println("----------\n"+nameClass);
-				//System.out.println("-----------\n"+name);
+//				System.out.println("da sua sandalia----------\n"+nameClass);
+//				System.out.println("-----------\n"+name);
+//				System.out.println(nameClass);
 				if(nameClass.equals(name)){
-					System.out.println("Classe: "+c.getName());
-					System.out.println("Classe Comparação: "+name);
-					System.out.println("Lista de Imports: "+c.getListImports());
-					System.out.println("Package: "+c.getPkg());
-					System.out.println("Lista de Extends: "+c.getListExtends());
-					//System.out.println(c.getListImports().get(0).getName().asString());
-					System.out.println("-----------");
+//					System.out.println("Classe: "+c.getName());
+//					System.out.println("Classe Comparação: "+name);
+//					System.out.println("Lista de Imports: "+c.getListImports());
+//					System.out.println("Package: "+c.getPkg());
+//					System.out.println("Lista de Extends: "+c.getListExtends());
+//					System.out.println(c.getListImports().get(0).getName().asString());
+//					System.out.println("-----------");
 					
 					listaClasses.add(c.getPkg()+"."+c.getName());
 					break;
@@ -45,7 +50,8 @@ public class ClassUtil {
 		return listaClasses;
 	}
 	
-	private static String returnNamedWithPackageIfNecessary(String className, ClassParameter c){
+	//Verificar qual o package do nome da classe passada, com base nos Imports da classe passada no ClassParameter
+	public static String returnNamedWithPackageIfNecessary(String className, ClassParameter c){
 		
 		if(className.contains("."))
 			return className;
@@ -59,7 +65,7 @@ public class ClassUtil {
 		for(ImportDeclaration id: c.getListImports()){
 			String nameImport = id.getName().asString();
 			if(nameImport.lastIndexOf("*")>-1){
-				Map map = VerificarPackage.generatePathFileList("", new File(CreateMutants.PROJECT_PATH_JAVA));
+				Map map = VerificarPackage.generatePathFileList("", new File(ConstantsPath.PROJECT_PATH_JAVA));
 				Iterator it = map.entrySet().iterator();
 				while (it.hasNext()) {
 					String pack = (String)it.next();
@@ -80,11 +86,11 @@ public class ClassUtil {
 			}
 		}
 		
-		return c.getPkg()+"."+className;
+		return className;
 	}
 	
 	   
-    public static List<String> getSubTypes(String className,String path_projeto) {
+    public static List<String> getSubTypes(String className, String path_projeto) {
     	String [] tiposDeArquivo = new String[] { "java" };
     	File source = new File(path_projeto);
     	List<ClassParameter> cl = new ArrayList<ClassParameter>();
@@ -95,12 +101,23 @@ public class ClassUtil {
 				cu = JavaParser.parse(f);
 				VisitorClasses vc = new VisitorClasses();
 				cu.accept(vc, c);
-				cl.add(c);
+				if(c.getName()!=null && !c.getName().trim().isEmpty())
+					cl.add(c);
 			} catch (FileNotFoundException e) {
 				e.printStackTrace();
 			}
     	}
-    	
-    	return ClassUtil.getSubTypesAux(className, cl);
+    //	System.out.println("All Classes: "+cl);
+     	return ClassUtil.getSubTypesAux(className, cl);
     }
+    
+    public static void getTreeAllSubTypes(List<String> lista, String classe) {
+		List<String> listaAux = ClassUtil.getSubTypes(classe, ConstantsPath.PROJECT_PATH_JAVA);
+		lista.addAll(listaAux);
+		for(String nome: listaAux) {
+			if(!lista.contains(nome))
+				getTreeAllSubTypes(lista, nome);
+		}
+	}
+    
 }

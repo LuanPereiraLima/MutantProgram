@@ -76,13 +76,7 @@ public class Main {
 	public static class Visi extends ModifierVisitor<Void>{
 		@Override
 		public Visitable visit(CatchClause n, Void arg) {
-			// TODO Auto-generated method stub
-			System.out.println(n.getParameter());
 			System.out.println(n.getParameter().getName());
-			System.out.println(n.getParameter().getType());
-			System.out.println(n.getParameter().getType().getElementType());
-			System.out.println(n.getParameter().getParsed());
-			
 			return super.visit(n, arg);
 		}
 	}
